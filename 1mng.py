@@ -12,12 +12,13 @@ class RiskModel:
     D: float = 500.0
     E: float = 500.0
     tax: float = 0.2
-    # Сценарии
+    
     scenarios: List[dict] = field(default_factory=lambda: [
         {"id": 1, "Q": 80.0, "prob": 0.2},
         {"id": 2, "Q": 100.0, "prob": 0.7},
         {"id": 3, "Q": 120.0, "prob": 0.1},
     ])
+    
     @property
     def S(self) :
         return self.Q * self.P
@@ -55,9 +56,8 @@ class RiskModel:
     @staticmethod
     def classify_risk(roe: float):
         """
-        Классификация ROE по интервалам :
-        - A (1): ROE > 0.20-> Sq = 1
-        - Б (2): 0.10 < ROE <= 0.20   -> Sq = 1
+        - A (1): ROE > 0.20
+        - Б (2): 0.10 < ROE <= 0.20   
         """
         if roe > 0.20:
             return "A", 1, 1
@@ -85,7 +85,6 @@ class RiskModel:
             return 3
 
     def run_scenarios(self) :
-        """Расчеты для заданных сценариев."""
         results = []
         for sc in self.scenarios:
             q = sc["Q"]
@@ -103,7 +102,7 @@ class RiskModel:
                 "Q": q,
                 "Вероятность": p_prob,
                 "EBIT": round(ebit_sc, 2),
-                "EAT (Чистая прибыль)": round(eat_sc, 2),
+                "EAT": round(eat_sc, 2),
                 "ROE": f"{roe_sc:.2%}",
                 "ROE_raw": roe_sc,
                 "Категория риска": cat,
@@ -138,7 +137,6 @@ df = model.run_scenarios()
 print(df[["Сценарий", "Q", "Вероятность", "ROE", "Категория риска", "Значимость (Sq)", "Балл вероятности"]])
 
 model_fc350 = RiskModel(FC=350.0)
-# Смотрим детально 2-й сценарий
 model_fc350.analyze_scenario(2)
 
 scenarios_with_4 = [
@@ -149,7 +147,6 @@ scenarios_with_4 = [
 ]
 model_extended = RiskModel(FC=300.0, scenarios=scenarios_with_4)
 
-# Вывод
 print(model_extended.run_scenarios()[[
     "Сценарий", "Q", "Вероятность", "ROE", "Категория риска", "Значимость (Sq)", "Балл вероятности"
 ]])
